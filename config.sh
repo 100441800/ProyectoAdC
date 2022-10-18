@@ -27,4 +27,3 @@ fi
 cmake --build image-soa --target imgsoa --clean-first
 cmake --build image-aos --target imgaos --clean-first
 
-tail -f ./config.out
