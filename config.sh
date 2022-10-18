@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH -o /config.out
-#SBATCH -e /config.out
+#SBATCH -o ./config.out
+#SBATCH -e ./config.out
 
 # Clean
 rm -rf image-aos
