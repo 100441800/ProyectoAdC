@@ -1,0 +1,17 @@
+cmake_minimum_required(VERSION 3.23)
+set(CMAKE_C_COMPILER "gcc-12")
+set(CMAKE_CXX_COMPILER "g++-12")
+project(image LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS_OFF)
+#add_compile_options(−Wall −Wextra −Werror −pedantic −pedantic−errors)
+add_compile_options(-Wall -Wextra -pedantic)
+include_directories(${PROJECT_SOURCE_DIR})
+add_library(common ${PROJECT_SOURCE_DIR}/common/progargs.cpp)
+
+add_executable(imgaos ${PROJECT_SOURCE_DIR}/aos/imageaos.cpp)
+target_link_libraries(imgaos common)
+add_executable(imgsoa ${PROJECT_SOURCE_DIR}/soa/imagesoa.cpp)
+target_link_libraries(imgsoa common)
