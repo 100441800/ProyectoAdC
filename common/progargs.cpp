@@ -14,10 +14,12 @@ unsigned short check_inputs(std::vector<std::string>& inputs){
 	if (inputs.size() != 3) {
 		std::cout << std::endl << "Wrong format:" << std::endl << INSTRUCTIONS;
 		return -1;
-	}
-
 	// Operation is copy, histo, mono or gauss
-	
+	} else if( !(inputs[2] == "copy" || inputs[2] == "histo" || inputs[2] == "mono" || inputs[2] == "gauss")) {		
+		std::cout << std::endl << "Unexpected operation:" << inputs[2] << std::endl << INSTRUCTIONS;
+		return -1;
+	}	
+		
 	// Input directory does not exist or cannot be opened
 	
 	// Output directory does not exist or cannot be opened
