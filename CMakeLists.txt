@@ -7,7 +7,7 @@ set(CMAKE_CXX_EXTENSIONS_OFF)
 #add_compile_options(−Wall −Wextra −Werror −pedantic −pedantic−errors)
 add_compile_options(-Wall -Wextra -pedantic)
 include_directories(${PROJECT_SOURCE_DIR})
-add_library(common ${PROJECT_SOURCE_DIR}/common/progargs.cpp)
+add_library(common ${PROJECT_SOURCE_DIR}/common/progargs.cpp ${PROJECT_SOURCE_DIR}/common/image.cpp)
 
 add_executable(imgaos ${PROJECT_SOURCE_DIR}/aos/imageaos.cpp)
 target_link_libraries(imgaos common)

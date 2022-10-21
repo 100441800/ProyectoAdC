@@ -1,20 +1,17 @@
-//
-//  main.cpp
-//  ProyectoAdC
-//
-//  Created by José David Rico Días on 17/10/22.
-//
-
 #include <iostream>
 #include <vector>
 #include <string>
-#include <common/progargs.h>
+#include <stdexcept>
+#include "common/progargs.hpp"
+#include "common/image.hpp"
 
 int main(int argc, const char **argv) {
-    // insert code here...
-    std::cout << "AOS compilando!\n";
-	std::vector<std::string> inputs(argv + 1, argv + argc);
-	check_inputs(inputs);
-
+	const std::vector<std::string> inputs(argv + 1, argv + argc);
+	try {
+        check_inputs(inputs);
+        
+    } catch (const std::exception& e) {
+        std::cout << e.what();
+    }
     return 0;
 }

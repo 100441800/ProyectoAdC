@@ -26,4 +26,3 @@ fi
 # Build targets on independent directories
 cmake --build image-soa --target imgsoa --clean-first
 cmake --build image-aos --target imgaos --clean-first
-
