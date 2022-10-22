@@ -13,7 +13,7 @@ class ImageAos: public Image {
 private:
     std::vector<pixel> data;
     void load_data();
-    void save(const std::filesystem::path & out_dir);
+    void store(const std::filesystem::path & out_dir);
 public:
     ImageAos(const std::string & filename);
     void copy(const std::filesystem::path & out_dir);

@@ -2,3 +2,5 @@
 image-aos/*
 image-soa/*
 .vscode
+test/in/*
+test/out/*

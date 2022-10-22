@@ -1,5 +1,6 @@
 #include <string>
 #include <fstream>
+#include <iostream>
 #include <vector>
 
 class Image {
@@ -10,6 +11,9 @@ private:
     unsigned int section_to_uint_little_endian(const std::vector<unsigned char>& num_str, int start, unsigned int end);
 protected:
     std::string filename;
+
+    // Header
+    std::vector<unsigned char> raw_header;
     unsigned int initial_charBM;
     unsigned int file_size;
     unsigned int image_start;
@@ -20,6 +24,8 @@ protected:
     unsigned int point_size;
     unsigned int compression;
     unsigned int image_size;
+    unsigned short padding;
+
     std::fstream image_stream;
 
     Image(const std::string & filename);

@@ -1,6 +1,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <vector>
+#include <chrono>
 #include <iostream> // DEBUG
 #include "image.hpp"
 
@@ -32,10 +33,10 @@ void Image::check_header(){
 }
 
 void Image::load_header(){
+    // Suppose header is of fixed size 54
     char buffer[54];
     this->image_stream.read(buffer, 54);
-    const std::vector<unsigned char> data(buffer, buffer + 54);
-
+    const std::vector<unsigned char> data(buffer, buffer + 54); // To unsigned char
     this->initial_charBM = this->section_to_uint_little_endian(data, 0, 2);
     this->file_size = this->section_to_uint_little_endian(data, 2, 6);
     this->image_start = this->section_to_uint_little_endian(data, 10, 14);
@@ -46,11 +47,18 @@ void Image::load_header(){
     this->point_size = this->section_to_uint_little_endian(data, 28, 30);
     this->compression = this->section_to_uint_little_endian(data, 30, 34);
     this->image_size = this->section_to_uint_little_endian(data, 34, 38);
+    this->padding = this->width*3 % 4;
+    // Adds whole header
+    char buffer_total[this->image_start];
+    this->image_stream.read(buffer_total, this->image_start);
+    const std::vector<unsigned char> data_total(buffer_total, buffer_total + this->image_start);
+    this->raw_header = data_total;
+
 }
 
-Image::Image(const std::string & filename){
+Image::Image(const std::string & filename) {
     this->filename = filename;
     this->load_file();
     this->load_header();
-    this->check_header();
+    this->check_header();	
 }
