@@ -3,12 +3,18 @@
 #SBATCH -e ./config.out
 
 # Clean
+mv image-aos/imgaos.cpp ./
+mv image-soa/imgsoa.cpp ./
 rm -rf image-aos
 rm -rf image-soa
 
 # Build directories
 mkdir -p image-aos
 mkdir -p image-soa
+
+# Move back mains
+mv imgaos.cpp ./image-aos
+mv imgsoa.cpp ./image-soa
 
 if [ $# -eq 1 ] && [ $1 == avignon ]; then
 # Config build directories for Avignon
