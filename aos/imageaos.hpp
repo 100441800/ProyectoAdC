@@ -4,9 +4,9 @@
 #include "common/image.hpp"
 
 struct pixel {
-    unsigned char blue;
-    unsigned char green;
-    unsigned char red;
+    uint8_t blue;
+    uint8_t green;
+    uint8_t red;
 };
 
 class ImageAos: public Image {

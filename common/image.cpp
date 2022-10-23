@@ -30,6 +30,9 @@ void Image::check_header(){
     if(this->image_stream.tellg() != this->file_size) { // Real vs header file size
         throw std::invalid_argument("[ERROR] File header states incorrect BMP file size");
     }
+    if(this->image_size != ((this->width*3 + this->padding)*this->height)) { // Image size
+        throw std::invalid_argument("[ERROR] File header states incorrect BMP image size");
+    }
 }
 
 void Image::load_header(){
@@ -50,10 +53,10 @@ void Image::load_header(){
     this->padding = this->width*3 % 4;
     // Adds whole header
     char buffer_total[this->image_start];
+    this->image_stream.seekg(0, this->image_stream.beg);
     this->image_stream.read(buffer_total, this->image_start);
-    const std::vector<unsigned char> data_total(buffer_total, buffer_total + this->image_start);
+    const std::vector<char> data_total(buffer_total, buffer_total + this->image_start);
     this->raw_header = data_total;
-
 }
 
 Image::Image(const std::string & filename) {

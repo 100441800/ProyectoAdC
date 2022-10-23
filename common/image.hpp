@@ -13,7 +13,7 @@ protected:
     std::string filename;
 
     // Header
-    std::vector<unsigned char> raw_header;
+    std::vector<char> raw_header;
     unsigned int initial_charBM;
     unsigned int file_size;
     unsigned int image_start;
