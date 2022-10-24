@@ -19,7 +19,7 @@ ImageAos::ImageAos(const std::string &filename) : Image(filename) {
  * Loads bytes into object
  */
 void ImageAos::load_data() {
-    const unsigned int width_bytes = this->width * 3;   // Image constructor loaded fstream on image_stream
+    const unsigned int width_bytes = this->width * 3 + this->padding;   // Image constructor loaded fstream on image_stream
     std::vector<char> buffer;                           // Buffer for the whole line
     buffer.reserve(width_bytes);
     this->data.reserve(this->image_size);               // Reserves points (each point 3 Bytes)
@@ -49,14 +49,16 @@ void ImageAos::store(const std::filesystem::path &out_dir) {
     out_bmp.seekp(0, this->image_stream.beg);
     out_bmp.write(static_cast<char *>(this->raw_header.data()), this->image_start);
     std::vector<char> buffer;                     // Buffer for the whole line
-    buffer.reserve(this->width*3);
+    buffer.reserve(this->width*3 + this->padding);
     for(int i=0; i < this->height; i++) {
-        for(int j=0; j < this->width; j++) {
+        int j=0;
+        for(; j < this->width; j++) {
             buffer[3*j] = this->data[i*this->width + j].blue;
             buffer[3*j+1] = this->data[i*this->width + j].green;
             buffer[3*j+2] = this->data[i*this->width + j].red;
         }
         out_bmp.write(buffer.data(), this->width*3);
+        for(int k=0; k<this->padding; k++) out_bmp.put('\0');
     }
     out_bmp.close();
     this->store_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - this->start).count();

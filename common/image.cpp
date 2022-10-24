@@ -38,7 +38,19 @@ void Image::check_header(){
         throw std::invalid_argument("[ERROR] File header states incorrect BMP file size");
     }
     if(this->image_size != ((this->width*3 + this->padding)*this->height)) { // Image size
-        throw std::invalid_argument("[ERROR] File header states incorrect BMP image size");
+        throw std::invalid_argument("[ERROR] File header states incorrect BMP image size. From header: " + 
+            std::to_string(this->image_size) + ". From height and width calculations: " + 
+            std::to_string((this->width*3 + this->padding)*this->height) + 
+            ". Padding: " + std::to_string(this->padding));
+    }
+    if(this->planes != 1) {
+        throw std::invalid_argument("[ERROR] Incorrect number of planes: " + std::to_string(this->planes) + ". Must be 1");
+    }
+    if(this->point_size != 24) {
+        throw std::invalid_argument("[ERROR] Point size is:" + std::to_string(this->point_size) + "Must be 24 bits");
+    }
+    if(this->compression != 0) {
+        throw std::invalid_argument("[ERROR] Compression is:" + std::to_string(this->compression) + "Must be 0");
     }
 }
 
@@ -56,7 +68,7 @@ void Image::load_header(){
     this->point_size = this->section_to_uint_little_endian(data, 28, 30);
     this->compression = this->section_to_uint_little_endian(data, 30, 34);
     this->image_size = this->section_to_uint_little_endian(data, 34, 38);
-    this->padding = this->width*3 % 4;
+    this->padding = (4 - (this->width * 3 % 4)) % 4;
     // Adds whole header
     this->raw_header.reserve(this->image_start);
     this->image_stream.seekg(0, this->image_stream.beg);
