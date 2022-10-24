@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <chrono>
 
 class Image {
 private:
@@ -26,12 +27,21 @@ protected:
     unsigned int image_size;
     unsigned short padding;
 
+    static const short mask_eigen[5]; // https://www.ipol.im/pub/art/2013/87/?utm_source=doi
+
     std::fstream image_stream;
+
+    std::chrono::time_point<std::chrono::high_resolution_clock> start;
 
     Image(const std::string & filename);
 public:
+    long load_time;
+    long operation_time;
+    long store_time;
+
     void copy();
     void histo();
     void mono();
     void gauss();
+
 };

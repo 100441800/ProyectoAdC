@@ -6,6 +6,11 @@
 #include "image.hpp"
 
 /**
+ * Gauss kernel
+ */
+const short Image::mask_eigen[5] = {1, 4, 7, 4, 1};
+
+/**
  * Converts array of uint8_t to uint_32t using bitwise and shift operations
  * WAY FASTER than stol and similar methods
  */
@@ -60,6 +65,10 @@ void Image::load_header(){
 }
 
 Image::Image(const std::string & filename) {
+    this->load_time = 0;
+    this->operation_time = 0;
+    this->store_time = 0;
+    this->start = std::chrono::high_resolution_clock::now();
     this->filename = filename;
     this->load_file();
     this->load_header();
