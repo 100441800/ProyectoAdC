@@ -19,21 +19,25 @@ protected:
     unsigned int file_size;
     unsigned int image_start;
     unsigned int header_size;
-    unsigned int width;
-    unsigned int height;
+    int width;
+    int height;
     unsigned int planes;
     unsigned int point_size;
     unsigned int compression;
-    unsigned int image_size;
-    unsigned short padding;
+    int image_size;
+    short padding;
 
     static const short mask_eigen[5]; // https://www.ipol.im/pub/art/2013/87/?utm_source=doi
+    static const short mask[5][5];
 
     std::fstream image_stream;
 
     std::chrono::time_point<std::chrono::high_resolution_clock> start;
 
     Image(const std::string & filename);
+    
+    uint8_t gamma_delinearization(const uint8_t blue, const uint8_t green, const uint8_t red);
+
 public:
     long load_time;
     long operation_time;

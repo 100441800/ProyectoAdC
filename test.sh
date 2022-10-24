@@ -11,4 +11,4 @@
 #    diff $FILE ../out/$FILE;
 #done
 #cd ../../
-./image-aos/imgaos test/in test/out histo
+#./image-aos/imgaos test/in test/out histo
