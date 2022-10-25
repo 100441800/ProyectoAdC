@@ -1,16 +1,27 @@
 #include <vector>
+#include <string>
+#include <filesystem>
 #include "common/image.hpp"
 
-class ImageAos: public Image {
+struct pixels {
+    std::vector<uint8_t> blue;
+    std::vector<uint8_t> green;
+    std::vector<uint8_t> red;
+};
+
+class ImageSoa: public Image {
 private:
-    struct data {
-        std::vector<unsigned char> blue;
-        std::vector<unsigned char> green;
-        std::vector<unsigned char> red;
-    }
+    pixels data;
+    void load_data();
+    void store(const std::filesystem::path & out_dir);
+    void gaussian_mask(const int i, const int j);
+    void gaussian_mask_row(const int i, const int j);
+    void gaussian_mask_column(const int i, const int j);
+
 public:
-    void copy();
-    void histo();
-    void mono();
-    void gauss();
+    ImageSoa(const std::string & filename);
+    void copy(const std::filesystem::path & out_dir);
+    void histo(const std::filesystem::path & out_dir);
+    void mono(const std::filesystem::path & out_dir);
+    void gauss(const std::filesystem::path & out_dir);
 };

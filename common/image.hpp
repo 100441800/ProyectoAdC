@@ -27,8 +27,10 @@ protected:
     int image_size;
     short padding;
 
-    static const short mask_eigen[5]; // https://www.ipol.im/pub/art/2013/87/?utm_source=doi
-    static const short mask[5][5];
+    const short mask_eigen[5] = {1, 4, 7, 4, 1};
+    const short mask[5][5] = {{1, 4, 7, 4, 1}, {4, 16, 26, 16, 4}, {7, 26, 41, 26, 7}, {4, 16, 26, 16, 4}, {1, 4, 7, 4, 1}};
+    //const short mask_eigen[5]; // https://www.ipol.im/pub/art/2013/87/?utm_source=doi
+    //const short mask[5][5];
 
     std::fstream image_stream;
 
