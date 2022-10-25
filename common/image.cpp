@@ -5,7 +5,7 @@
 #include <iostream> // DEBUG
 #include <cmath>
 
-#include "image.hpp"
+#include "common/image.hpp"
 
 /**
  * Converts array of uint8_t to uint_32t using bitwise and shift operations

@@ -9,7 +9,7 @@
 /**
  * Constructor for ImageSoa
  */
-ImageSoa::ImageSoa(const std::string &filename) : Image(filename) {
+ImageSoa::ImageSoa(const std::string &filename) : Image::Image(filename) {
     this->load_data();
     this->load_time = std::chrono::duration_cast<std::chrono::microseconds>(
         std::chrono::high_resolution_clock::now() - this->start).count();
@@ -32,10 +32,9 @@ void ImageSoa::load_data() {
         seek += width_bytes;
         this->image_stream.seekg(seek, this->image_stream.beg);
         for(int j = 0; j < this->width * 3; j += 3) {
-            points.blue = buffer[j];
-            points.green = buffer[j + 1];
-            points.red = buffer[j + 2];
-            this->data.push_back(point);
+            this->data.blue.push_back(buffer[j]);
+            this->data.green.push_back(buffer[j+1]);
+            this->data.red.push_back(buffer[j+2]);
         }
     }
 }
@@ -54,12 +53,12 @@ void ImageSoa::store(const std::filesystem::path &out_dir) {
     for(int i=0; i < this->height; i++) {
         int j=0;
         for(; j < this->width; j++) {
-            buffer[3*j] = this->data[i*this->width + j].blue;
-            buffer[3*j+1] = this->data[i*this->width + j].green;
-            buffer[3*j+2] = this->data[i*this->width + j].red;
+            buffer[3*j] = this->data.blue[i*this->width + j];
+            buffer[3*j+1] = this->data.green[i*this->width + j];
+            buffer[3*j+2] = this->data.red[i*this->width + j];
         }
         out_bmp.write(buffer.data(), this->width*3);
-        for(int k=0; k<this->padding; k++) out_bmp.put('\0');
+        for(int k=0; k<this->padding; k++) out_bmp.put('\0'); // Adds padding
     }
     out_bmp.close();
     this->store_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - this->start).count();
@@ -84,11 +83,10 @@ void ImageSoa::histo(const std::filesystem::path &out_dir) {
     out_bmp.open(filename, std::ios::out);
     out_bmp.seekp(0, this->image_stream.beg);
     unsigned int buffer[256 * 3] = {0x0}; // Histogram data
-    for (unsigned int i = 0; i < this->data.size(); ++i) { // Surjective function using value (mod 256) + offset
-        pixel point = this->data[i];
-        buffer[point.red % 256] += 1;
-        buffer[(point.green % 256) + 256] += 1;
-        buffer[(point.blue % 256) + 512] += 1;
+    for (unsigned int i = 0; i < this->data.blue.size(); ++i) { // Surjective function using value (mod 256) + offset
+        buffer[this->data.red[i]] += 1;
+        buffer[this->data.green[i] + 256] += 1;
+        buffer[this->data.blue[i] + 512] += 1;
     }
     this->operation_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - this->start).count();
     this->start = std::chrono::high_resolution_clock::now();
@@ -104,10 +102,10 @@ void ImageSoa::histo(const std::filesystem::path &out_dir) {
  */
 void ImageSoa::mono(const std::filesystem::path &out_dir) {
     this->start = std::chrono::high_resolution_clock::now();
-    for (unsigned int i = 0; i < this->data.size(); ++i) {
-        double red = this->data[i].red / 255.0; // Normalize red
-        double green = this->data[i].green / 255.0; // Normalize green
-        double blue = this->data[i].blue / 255.0; // Normalize blue
+    for (unsigned int i = 0; i < this->data.blue.size(); ++i) {
+        double red = this->data.red[i] / 255.0; // Normalize red
+        double green = this->data.green[i] / 255.0; // Normalize green
+        double blue = this->data.blue[i] / 255.0; // Normalize blue
         if(red <=  0.04045) red = red / 12.92; // Red
         else red = std::pow(((red + 0.055)/1.055), 2.4);
         if(green <=  0.04045) green = green / 12.92; // Green
@@ -119,9 +117,9 @@ void ImageSoa::mono(const std::filesystem::path &out_dir) {
         if(linear_luminance <= 0.0031308) gamma_luminance = 12.92 * linear_luminance;
         else gamma_luminance = 1.055*pow(linear_luminance, 0.41666666666666666) - 0.055; // 1/2.4 = 0.41666666
         uint8_t grey_pixel = gamma_luminance*255; // Denormalize
-        this->data[i].red = grey_pixel;
-        this->data[i].blue = grey_pixel;
-        this->data[i].green = grey_pixel;
+        this->data.red[i] = grey_pixel;
+        this->data.blue[i] = grey_pixel;
+        this->data.green[i] = grey_pixel;
     }
     this->operation_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - this->start).count();
     this->store(out_dir);
@@ -135,17 +133,17 @@ void ImageSoa::gaussian_mask_row(const int i, const int j) {
     for(int s= -2; s<=2; ++s) {
         if(0 <= (j+s) && (j+s) < this->width) { 
             int index = i*this->width + j+s;
-            sum_blue += this->mask_eigen[s+2]*this->data[index].blue;
-            sum_green += this->mask_eigen[s+2]*this->data[index].green;
-            sum_red += this->mask_eigen[s+2]*this->data[index].red;
+            sum_blue += this->mask_eigen[s+2]*this->data.blue[index];
+            sum_green += this->mask_eigen[s+2]*this->data.green[index];
+            sum_red += this->mask_eigen[s+2]*this->data.red[index];
         }
     }
     sum_blue /= 17;
     sum_green /= 17;
     sum_red /= 17;
-    this->data[i*this->width + j].blue = sum_blue;
-    this->data[i*this->width + j].green = sum_green;
-    this->data[i*this->width + j].red = sum_red;
+    this->data.blue[i*this->width + j] = sum_blue;
+    this->data.green[i*this->width + j] = sum_green;
+    this->data.red[i*this->width + j] = sum_red;
 }
 
 void ImageSoa::gaussian_mask_column(const int i, const int j) {
@@ -155,17 +153,17 @@ void ImageSoa::gaussian_mask_column(const int i, const int j) {
     for(int s= -2; s<=2; ++s) {
         if(0 <= (i+s) && (i+s) < this->height) { 
             int index = (i+s)*this->width + j;
-            sum_blue += this->mask_eigen[s+2]*this->data[index].blue;
-            sum_green += this->mask_eigen[s+2]*this->data[index].green;
-            sum_red += this->mask_eigen[s+2]*this->data[index].red;
+            sum_blue += this->mask_eigen[s+2]*this->data.blue[index];
+            sum_green += this->mask_eigen[s+2]*this->data.green[index];
+            sum_red += this->mask_eigen[s+2]*this->data.red[index];
         }
     }
     sum_blue /= 17;
     sum_green /= 17;
     sum_red /= 17;
-    this->data[i*this->width + j].blue = sum_blue;
-    this->data[i*this->width + j].green = sum_green;
-    this->data[i*this->width + j].red = sum_red;
+    this->data.blue[i*this->width + j] = sum_blue;
+    this->data.green [i*this->width + j]= sum_green;
+    this->data.red[i*this->width + j] = sum_red;
 }
 
 void ImageSoa::gaussian_mask(const int i, const int j){
@@ -177,9 +175,9 @@ void ImageSoa::gaussian_mask(const int i, const int j){
             if(0 <= (i+s) && (i+s) < this->height &&
                0 <= (j+t) && (j+t) < this->width     ) {
                 int index = (i+s)*this->width + (j+t);
-                sum_blue += this->mask[s+2][t+2]*this->data[index].blue;
-                sum_green += this->mask[s+2][t+2]*this->data[index].green;
-                sum_red += this->mask[s+2][t+2]*this->data[index].red;
+                sum_blue += this->mask[s+2][t+2]*this->data.blue[index];
+                sum_green += this->mask[s+2][t+2]*this->data.green[index];
+                sum_red += this->mask[s+2][t+2]*this->data.red[index];
             }
         }
     }
@@ -187,9 +185,9 @@ void ImageSoa::gaussian_mask(const int i, const int j){
     sum_green /= 273;
     sum_red /= 273;
     
-    this->data[i*this->width + j].blue = sum_blue;
-    this->data[i*this->width + j].green = sum_green;
-    this->data[i*this->width + j].red = sum_red;
+    this->data.blue[i*this->width + j] = sum_blue;
+    this->data.green[i*this->width + j] = sum_green;
+    this->data.red[i*this->width + j] = sum_red;
 }
 
 void ImageSoa::gauss(const std::filesystem::path &out_dir) {

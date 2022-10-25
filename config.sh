@@ -18,8 +18,8 @@ mv imgsoa.cpp ./image-soa
 
 if [ $# -eq 1 ] && [ $1 == avignon ]; then
 # Config build directories for Avignon
-	cmake -S . -B image-aos -DCMAKE_CXX_COMPILER=/opt/gcc-12.1.0/bin/g++ -DCMAKE_BUILD_TYPE=Release
-	cmake -S . -B image-soa -DCMAKE_CXX_COMPILER=/opt/gcc-12.1.0/bin/g++ -DCMAKE_BUILD_TYPE=Release
+	cmake -S . -B image-aos -DCMAKE_CXX_COMPILER=/usr/bin/c++ -DCMAKE_BUILD_TYPE=Release
+	cmake -S . -B image-soa -DCMAKE_CXX_COMPILER=/usr/bin/c++ -DCMAKE_BUILD_TYPE=Release
 elif [ $# -eq 1 ] && [ $1 == macos ]; then
 # Config build directories for MacOS
 	find . -name ".DS_Store" -delete

@@ -59,7 +59,7 @@ void ImageAos::store(const std::filesystem::path &out_dir) {
             buffer[3*j+2] = this->data[i*this->width + j].red;
         }
         out_bmp.write(buffer.data(), this->width*3);
-        for(int k=0; k<this->padding; k++) out_bmp.put('\0');
+        for(int k=0; k<this->padding; k++) out_bmp.put('\0'); // Adds padding
     }
     out_bmp.close();
     this->store_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - this->start).count();
@@ -86,9 +86,9 @@ void ImageAos::histo(const std::filesystem::path &out_dir) {
     unsigned int buffer[256 * 3] = {0x0}; // Histogram data
     for (unsigned int i = 0; i < this->data.size(); ++i) { // Surjective function using value (mod 256) + offset
         pixel point = this->data[i];
-        buffer[point.red % 256] += 1;
-        buffer[(point.green % 256) + 256] += 1;
-        buffer[(point.blue % 256) + 512] += 1;
+        buffer[point.red] += 1;
+        buffer[point.green + 256] += 1;
+        buffer[point.blue + 512] += 1;
     }
     this->operation_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - this->start).count();
     this->start = std::chrono::high_resolution_clock::now();
