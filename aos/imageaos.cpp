@@ -5,6 +5,7 @@
 #include <cmath>
 #include <chrono>
 #include <vector>
+#include "common/image.hpp"
 
 /**
  * Constructor for ImageAos

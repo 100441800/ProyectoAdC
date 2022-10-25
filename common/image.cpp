@@ -3,8 +3,15 @@
 #include <vector>
 #include <chrono>
 #include <iostream> // DEBUG
-#include "image.hpp"
 #include <cmath>
+
+#include "image.hpp"
+
+/**
+ * Gauss kernel
+ */
+const short Image::mask_eigen[5] = {1, 4, 7, 4, 1};
+const short Image::mask[5][5] = {{1, 4, 7, 4, 1}, {4, 16, 26, 16, 4}, {7, 26, 41, 26, 7}, {4, 16, 26, 16, 4}, {1, 4, 7, 4, 1}};
 
 /**
  * Converts array of uint8_t to uint_32t using bitwise and shift operations
@@ -19,7 +26,7 @@ unsigned int Image::section_to_uint_little_endian(const std::vector<uint8_t>& nu
     return num;
 }
 
-void Image::load_file() {
+void Image::load_file(){
     this->image_stream.open(this->filename, std::ios::in | std::ios::binary);
 }
 

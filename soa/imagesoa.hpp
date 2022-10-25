@@ -3,6 +3,8 @@
 #include <filesystem>
 #include "common/image.hpp"
 
+#ifndef IMAGESOA_H
+#define IMAGEAOS_H
 struct pixels {
     std::vector<uint8_t> blue;
     std::vector<uint8_t> green;
@@ -25,3 +27,4 @@ public:
     void mono(const std::filesystem::path & out_dir);
     void gauss(const std::filesystem::path & out_dir);
 };
+#endif
