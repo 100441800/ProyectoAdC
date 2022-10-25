@@ -28,8 +28,8 @@ protected:
     int image_size;
     short padding;
 
-    static const short mask_eigen[5]; // https://www.ipol.im/pub/art/2013/87/?utm_source=doi
-    static const short mask[5][5];
+    static short mask_eigen[5]; // https://www.ipol.im/pub/art/2013/87/?utm_source=doi
+    static short mask[5][5];
 
     std::fstream image_stream;
 
