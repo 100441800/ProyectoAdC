@@ -11,7 +11,7 @@ set(SOURCES ${PROJECT_SOURCE_DIR}/common/progargs.cpp ${PROJECT_SOURCE_DIR}/comm
 add_compile_options(-Wall -Wextra -pedantic -O3 -march=native)
 include_directories(${PROJECT_SOURCE_DIR})
 add_library(common ${PROJECT_SOURCE_DIR}/common/progargs.cpp ${PROJECT_SOURCE_DIR}/common/image.cpp)
-add_library(soa ${PROJECT_SOURCE_DIR}/soa/imagesoa.cpp)
+add_library(soa ${PROJECT_SOURCE_DIR}/soa/imagesoa.cpp ${PROJECT_SOURCE_DIR}/common/image.cpp)
 add_library(aos ${PROJECT_SOURCE_DIR}/aos/imageaos.cpp ${PROJECT_SOURCE_DIR}/common/image.cpp)
 
 add_executable(imgsoa ${PROJECT_SOURCE_DIR}/image-soa/imgsoa.cpp)
