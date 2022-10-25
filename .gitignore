@@ -1,6 +1,14 @@
 .DS_Store
-image-aos/*
-image-soa/*
+image-aos/CMakeFiles/*
+image-aos/*cmake*
+image-aos/*Make*
+image-aos/*lib*
+image-aos/imgaos
+image-soa/CMakeFiles/*
+image-soa/*cmake*
+image-soa/*Make*
+image-soa/*lib*
+image-aos/imgaos
 .vscode
 test/in/*
 test/out/*

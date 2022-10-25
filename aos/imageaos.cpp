@@ -190,6 +190,7 @@ void ImageAos::gaussian_mask(const int i, const int j){
     this->data[i*this->width + j].green = sum_green;
     this->data[i*this->width + j].red = sum_red;
 }
+
 void ImageAos::gauss(const std::filesystem::path &out_dir) {
     this->start = std::chrono::high_resolution_clock::now();
     
