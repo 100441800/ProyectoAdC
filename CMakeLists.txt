@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS_OFF)
 
-set(SOURCES ${PROJECT_SOURCE_DIR}/common/progargs.cpp ${PROJECT_SOURCE_DIR}/common/image.cpp ${PROJECT_SOURCE_DIR}/aos/imageaos.cpp ${PROJECT_SOURCE_DIR}/image-aos/imgaos.cpp)
+set(SOURCES ${PROJECT_SOURCE_DIR}/common/progargs.cpp ${PROJECT_SOURCE_DIR}/common/image.cpp ${PROJECT_SOURCE_DIR}/aos/imageaos.cpp ${PROJECT_SOURCE_DIR}/image-aos/imgaos.cpp ${PROJECT_SOURCE_DIR}/soa/imagesoa.cpp ${PROJECT_SOURCE_DIR}/image-soa/imgsoa.cpp)
 
 #add_compile_options(−Wall −Wextra −Werror −pedantic −pedantic−errors)
 add_compile_options(-Wall -Wextra -pedantic -O3 -march=native)
@@ -15,6 +15,6 @@ add_library(soa ${PROJECT_SOURCE_DIR}/soa/imagesoa.cpp)
 add_library(aos ${PROJECT_SOURCE_DIR}/aos/imageaos.cpp ${PROJECT_SOURCE_DIR}/common/image.cpp)
 
 add_executable(imgsoa ${PROJECT_SOURCE_DIR}/image-soa/imgsoa.cpp)
-target_link_libraries(imgsoa common soa)
+target_link_libraries(imgsoa PRIVATE common soa)
 add_executable(imgaos ${PROJECT_SOURCE_DIR}/image-aos/imgaos.cpp)
 target_link_libraries(imgaos PRIVATE common aos)

@@ -8,7 +8,7 @@ image-soa/CMakeFiles/*
 image-soa/*cmake*
 image-soa/*Make*
 image-soa/*lib*
-image-aos/imgaos
+image-soa/imgsoa
 .vscode
 test/in/*
 test/out/*
