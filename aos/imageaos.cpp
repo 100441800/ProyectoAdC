@@ -10,7 +10,7 @@
 /**
  * Constructor for ImageAos
  */
-ImageAos::ImageAos(const std::string &filename) : Image(filename) {
+ImageAos::ImageAos(const std::string &filename) : Image::Image(filename) {
     this->load_data();
     this->load_time = std::chrono::duration_cast<std::chrono::microseconds>(
         std::chrono::high_resolution_clock::now() - this->start).count();
