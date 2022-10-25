@@ -7,13 +7,6 @@
 
 #include "image.hpp"
 
-
-/**
- * Gauss kernel
- */
-short Image::mask_eigen[5] = {1, 4, 7, 4, 1};
-short Image::mask[5][5] = {{1, 4, 7, 4, 1}, {4, 16, 26, 16, 4}, {7, 26, 41, 26, 7}, {4, 16, 26, 16, 4}, {1, 4, 7, 4, 1}};
-
 /**
  * Converts array of uint8_t to uint_32t using bitwise and shift operations
  * WAY FASTER than stol and similar methods
@@ -82,6 +75,8 @@ Image::Image(const std::string & filename) {
     this->load_time = 0;
     this->operation_time = 0;
     this->store_time = 0;
+    this->mask_eigen = {1, 4, 7, 4, 1}; // Kernels
+    this->mask = {{1, 4, 7, 4, 1}, {4, 16, 26, 16, 4}, {7, 26, 41, 26, 7}, {4, 16, 26, 16, 4}, {1, 4, 7, 4, 1}};
     this->start = std::chrono::high_resolution_clock::now();
     this->filename = filename;
     this->load_file();
