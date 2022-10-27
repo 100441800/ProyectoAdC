@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 /**
  * Constructor for ImageAos
  */
@@ -147,7 +149,7 @@ void ImageAos::mono(const std::filesystem::path &out_dir) {
     if (linear_luminance <= 0.0031308)
       gamma_luminance = 12.92 * linear_luminance;
     else
-      gamma_luminance = 1.055 * pow(linear_luminance, 0.41666666666666666) -
+      gamma_luminance = 1.055 * pow(linear_luminance, 1/2.4) -
                         0.055;                  // 1/2.4 = 0.41666666
     uint8_t grey_pixel = gamma_luminance * 255; // Denormalize
     this->data[i].red = grey_pixel;
@@ -162,67 +164,44 @@ void ImageAos::mono(const std::filesystem::path &out_dir) {
 }
 
 void ImageAos::gaussian_mask_row(const int i, const int j) {
-  unsigned long sum_blue = 0;
-  unsigned long sum_green = 0;
-  unsigned long sum_red = 0;
+  double sum_blue = 0;
+  double sum_green = 0;
+  double sum_red = 0;
   for (int s = -2; s <= 2; ++s) {
     if (0 <= (j + s) && (j + s) < this->width) {
-      int index = i * this->width + j + s;
+      const int index = i * this->width + j + s;
       sum_blue += this->mask_eigen[s + 2] * this->data[index].blue;
       sum_green += this->mask_eigen[s + 2] * this->data[index].green;
       sum_red += this->mask_eigen[s + 2] * this->data[index].red;
     }
   }
-  sum_blue /= 17;
-  sum_green /= 17;
-  sum_red /= 17;
-  this->data[i * this->width + j].blue = sum_blue;
-  this->data[i * this->width + j].green = sum_green;
-  this->data[i * this->width + j].red = sum_red;
+  sum_blue /= 17.0;
+  sum_green /= 17.0;
+  sum_red /= 17.0;
+  this->data[i * this->width + j].blue = std::round(sum_blue);
+  this->data[i * this->width + j].green = std::round(sum_green);
+  this->data[i * this->width + j].red = std::round(sum_red);
 }
 
 void ImageAos::gaussian_mask_column(const int i, const int j) {
-  unsigned long sum_blue = 0;
-  unsigned long sum_green = 0;
-  unsigned long sum_red = 0;
+  double sum_blue = 0;
+  double sum_green = 0;
+  double sum_red = 0;
+  int index = 0;
   for (int s = -2; s <= 2; ++s) {
     if (0 <= (i + s) && (i + s) < this->height) {
-      int index = (i + s) * this->width + j;
+      index = (i + s) * this->width + j;
       sum_blue += this->mask_eigen[s + 2] * this->data[index].blue;
       sum_green += this->mask_eigen[s + 2] * this->data[index].green;
       sum_red += this->mask_eigen[s + 2] * this->data[index].red;
     }
   }
-  sum_blue /= 17;
-  sum_green /= 17;
-  sum_red /= 17;
-  this->data[i * this->width + j].blue = sum_blue;
-  this->data[i * this->width + j].green = sum_green;
-  this->data[i * this->width + j].red = sum_red;
-}
-
-void ImageAos::gaussian_mask(const int i, const int j) {
-  unsigned long sum_blue = 0;
-  unsigned long sum_green = 0;
-  unsigned long sum_red = 0;
-  for (int s = -2; s <= 2; ++s) {
-    for (int t = -2; t <= 2; ++t) {
-      if (0 <= (i + s) && (i + s) < this->height && 0 <= (j + t) &&
-          (j + t) < this->width) {
-        int index = (i + s) * this->width + (j + t);
-        sum_blue += this->mask[s + 2][t + 2] * this->data[index].blue;
-        sum_green += this->mask[s + 2][t + 2] * this->data[index].green;
-        sum_red += this->mask[s + 2][t + 2] * this->data[index].red;
-      }
-    }
-  }
-  sum_blue /= 273;
-  sum_green /= 273;
-  sum_red /= 273;
-
-  this->data[i * this->width + j].blue = sum_blue;
-  this->data[i * this->width + j].green = sum_green;
-  this->data[i * this->width + j].red = sum_red;
+  sum_blue /= 17.0;
+  sum_green /= 17.0;
+  sum_red /= 17.0;
+  this->data[i * this->width + j].blue = std::round(sum_blue);
+  this->data[i * this->width + j].green = std::round(sum_green);
+  this->data[i * this->width + j].red = std::round(sum_red);
 }
 
 void ImageAos::gauss(const std::filesystem::path &out_dir) {
@@ -238,13 +217,7 @@ void ImageAos::gauss(const std::filesystem::path &out_dir) {
       this->gaussian_mask_column(i, j); // Only the columns
     }
   }
-  /* Inneficient version
-  for(int j=0; j < this->width; j++) {
-      for(int i=0; i < this->height; i++) {
-          this->gaussian_mask(i, j);
-      }
-  }
-  */
+
   this->operation_time =
       std::chrono::duration_cast<std::chrono::microseconds>(
           std::chrono::high_resolution_clock::now() - this->start)

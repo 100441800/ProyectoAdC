@@ -14,17 +14,17 @@ cp ./test/images/* ./test/in/
 
 # AOS
 echo -e "\nGoing to test ${BOLD}imgaos${NC}:"
+rm -rf ./test/out/*
 
 ./image-aos/imgaos test/in test/out copy > /dev/null
 
 cd ./test/in
 # Clean
-rm -rf ./test/out/*
 
 for FILE in *;
 do
     echo -n -e "\tCopy of ${FILE} " 
-    if (diff $FILE ../copy/$FILE > /dev/null)
+    if (diff $FILE ../out/$FILE > /dev/null)
     then
         echo -e "${GREEN} ✓${NC}"
     else
@@ -38,15 +38,13 @@ rm -rf ./test/out/*
 
 ./image-aos/imgaos test/in test/out histo > /dev/null
 
-cd ./test/in
+cd ./test/histo
 
 for FILE in *;
 do
     echo -n -e "\tHistogram of ${FILE} " 
-    filename=$(basename ${FILE})
-    filename="${filename/.bmp/}"
     
-    if (diff $FILE ../histo/${filename}.hst > /dev/null)
+    if (diff $FILE ../out/${filename} > /dev/null)
     then
         echo -e "${GREEN} ✓${NC}"
     else
@@ -55,17 +53,17 @@ do
     
 done
 cd ../../
+rm -rf ./test/out/*
 
 ./image-aos/imgaos test/in test/out mono > /dev/null
 
-cd ./test/in
+cd ./test/mono
 # Clean
-rm -rf ./test/out/*
 
 for FILE in *;
 do
     echo -n -e "\tMono of ${FILE} " 
-    if (diff $FILE ../mono/$FILE > /dev/null)
+    if (diff $FILE ../out/$FILE > /dev/null)
     then
         echo -e "${GREEN} ✓${NC}"
     else
@@ -79,12 +77,12 @@ rm -rf ./test/out/*
 
 ./image-aos/imgaos test/in test/out gauss > /dev/null
 
-cd ./test/in
+cd ./test/gauss
 
 for FILE in *;
 do
     echo -n -e "\tGauss of ${FILE} " 
-    if (diff $FILE ../gauss/$FILE > /dev/null)
+    if (diff $FILE ../out/$FILE > /dev/null)
     then
         echo -e "${GREEN} ✓${NC}"
     else
@@ -106,7 +104,7 @@ cd ./test/in
 for FILE in *;
 do
     echo -n -e "\tCopy of ${FILE} " 
-    if (diff $FILE ../copy/$FILE)
+    if (diff $FILE ../out/$FILE > /dev/null)
     then
         echo -e "${GREEN} ✓${NC}"
     else
@@ -119,15 +117,14 @@ rm -rf ./test/out/*
 
 ./image-aos/imgaos test/in test/out histo > /dev/null
 
-cd ./test/in
+cd ./test/histo
 
 for FILE in *;
 do
     echo -n -e "\tHistogram of ${FILE} " 
     filename=$(basename ${FILE})
-    filename="${filename/.bmp/}"
-    
-    if (diff $FILE ../histo/${filename}.hst > /dev/null)
+
+    if (diff $FILE ../out/${filename} > /dev/null)
     then
         echo -e "${GREEN} ✓${NC}"
     else
@@ -141,12 +138,12 @@ rm -rf ./test/out/*
 
 ./image-aos/imgaos test/in test/out mono > /dev/null
 
-cd ./test/in
+cd ./test/mono
 
 for FILE in *;
 do
     echo -n -e "\tMono of ${FILE} " 
-    if (diff $FILE ../mono/$FILE > /dev/null)
+    if (diff $FILE ../out/$FILE > /dev/null)
     then
         echo -e "${GREEN} ✓${NC}"
     else
@@ -160,12 +157,12 @@ rm -rf ./test/out/*
 
 ./image-aos/imgaos test/in test/out gauss > /dev/null
 
-cd ./test/in
+cd ./test/gauss
 
 for FILE in *;
 do
     echo -n -e "\tGauss of ${FILE} " 
-    if (diff $FILE ../gauss/$FILE > /dev/null)
+    if (diff $FILE ../out/$FILE > /dev/null)
     then
         echo -e "${GREEN} ✓${NC}"
     else

@@ -31,9 +31,9 @@ protected:
   int image_size;
   short padding;
 
-  std::vector<short>
+  std::vector<int>
       mask_eigen; // https://www.ipol.im/pub/art/2013/87/?utm_source=doi
-  std::vector<std::vector<short>> mask;
+  std::vector < std::vector<int>> mask;
 
   std::fstream image_stream;
 
