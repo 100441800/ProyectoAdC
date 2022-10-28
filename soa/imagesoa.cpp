@@ -1,10 +1,12 @@
-#include "soa/imagesoa.hpp"
 #include <chrono>
 #include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <string>
 #include <vector>
+
+#include "soa/imagesoa.hpp"
+
 
 /**
  * Constructor for ImageSoa
@@ -47,7 +49,7 @@ void ImageSoa::load_data() {
  * Dumps image data into a new file
  */
 void ImageSoa::store(const std::filesystem::path &out_dir) {
-  this->start = std::chrono::high_resolution_clock::now();
+  this->start_timer();
   std::ofstream out_bmp;
   out_bmp.open(out_dir.generic_string() +
                    this->filename.substr(this->filename.find_last_of('/')),
@@ -69,10 +71,7 @@ void ImageSoa::store(const std::filesystem::path &out_dir) {
       out_bmp.put('\0'); // Adds padding
   }
   out_bmp.close();
-  this->store_time =
-      std::chrono::duration_cast<std::chrono::microseconds>(
-          std::chrono::high_resolution_clock::now() - this->start)
-          .count();
+  this->store_time = this->time_difference();
 }
 
 /**
@@ -97,7 +96,7 @@ void ImageSoa::histo(const std::filesystem::path &out_dir) {
   out_bmp.seekp(0, this->image_stream.beg);
   unsigned int buffer[256 * 3] = {0x0}; // Histogram data
   for (unsigned int i = 0; i < this->data.blue.size();
-       ++i) { // Surjective function using value (mod 256) + offset
+       ++i) { // Surjective function using value + offset
     buffer[this->data.red[i]] += 1;
     buffer[this->data.green[i] + 256] += 1;
     buffer[this->data.blue[i] + 512] += 1;
@@ -111,10 +110,7 @@ void ImageSoa::histo(const std::filesystem::path &out_dir) {
     std::string num = std::to_string(buffer[i]);
     out_bmp << num << std::endl;
   }
-  this->store_time =
-      std::chrono::duration_cast<std::chrono::microseconds>(
-          std::chrono::high_resolution_clock::now() - this->start)
-          .count();
+  this->store_time = this->time_difference();
 }
 
 /**
@@ -124,38 +120,12 @@ void ImageSoa::histo(const std::filesystem::path &out_dir) {
 void ImageSoa::mono(const std::filesystem::path &out_dir) {
   this->start = std::chrono::high_resolution_clock::now();
   for (unsigned int i = 0; i < this->data.blue.size(); ++i) {
-    double red = this->data.red[i] / 255.0;     // Normalize red
-    double green = this->data.green[i] / 255.0; // Normalize green
-    double blue = this->data.blue[i] / 255.0;   // Normalize blue
-    if (red <= 0.04045)
-      red = red / 12.92; // Red
-    else
-      red = std::pow(((red + 0.055) / 1.055), 2.4);
-    if (green <= 0.04045)
-      green = green / 12.92; // Green
-    else
-      green = std::pow(((green + 0.055) / 1.055), 2.4);
-    if (blue <= 0.04045)
-      blue = blue / 12.92; // Blue
-    else
-      blue = std::pow(((blue + 0.055) / 1.055), 2.4);
-    long double linear_luminance = 0.2126 * red + 0.7152 * green +
-                                   0.0722 * blue; // Adjusted luminance of pixel
-    long double gamma_luminance = 0;
-    if (linear_luminance <= 0.0031308)
-      gamma_luminance = 12.92 * linear_luminance;
-    else
-      gamma_luminance = 1.055 * pow(linear_luminance, 1/2.4) -
-                        0.055;                  // 1/2.4 = 0.41666666
-    uint8_t grey_pixel = gamma_luminance * 255; // Denormalize
+    uint8_t grey_pixel = this->gamma_delinearization(this->data.blue[i], this->data.green[i], this->data.red[i]);
     this->data.red[i] = grey_pixel;
     this->data.blue[i] = grey_pixel;
     this->data.green[i] = grey_pixel;
   }
-  this->operation_time =
-      std::chrono::duration_cast<std::chrono::microseconds>(
-          std::chrono::high_resolution_clock::now() - this->start)
-          .count();
+  this->operation_time = time_difference();
   this->store(out_dir);
 }
 

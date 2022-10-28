@@ -1,11 +1,11 @@
-#include "aos/imageaos.hpp"
-#include "common/progargs.hpp"
-#include <chrono>
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+#include "common/progargs.hpp"
+#include "aos/imageaos.hpp"
 
 int main(int argc, const char **argv) {
   const std::vector<std::string> inputs(argv + 1, argv + argc);

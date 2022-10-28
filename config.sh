@@ -18,13 +18,13 @@ mv imgsoa.cpp ./image-soa
 
 if [ $# -eq 1 ] && [ $1 == avignon ]; then
 # Config build directories for Avignon
-	cmake -S . -B image-aos -DCMAKE_CXX_COMPILER=/usr/bin/c++ -DCMAKE_BUILD_TYPE=Release
-	cmake -S . -B image-soa -DCMAKE_CXX_COMPILER=/usr/bin/c++ -DCMAKE_BUILD_TYPE=Release
+	cmake -S . -B image-aos -DCMAKE_CXX_COMPILER=/usr/bin/c++
+	cmake -S . -B image-soa -DCMAKE_CXX_COMPILER=/usr/bin/c++
 elif [ $# -eq 1 ] && [ $1 == macos ]; then
 # Config build directories for MacOS
 	find . -name ".DS_Store" -delete
-	cmake -S . -B image-aos -DCMAKE_CXX_COMPILER=/opt/homebrew/bin/g++-12 -DCMAKE_BUILD_TYPE=Debug
-	cmake -S . -B image-soa -DCMAKE_CXX_COMPILER=/opt/homebrew/bin/g++-12 -DCMAKE_BUILD_TYPE=Debug
+	cmake -S . -B image-aos -DCMAKE_CXX_COMPILER=/opt/homebrew/bin/g++-12
+	cmake -S . -B image-soa -DCMAKE_CXX_COMPILER=/opt/homebrew/bin/g++-12
 else
 	echo "Incorrect arguments: use macos or avignon"
 	exit -1

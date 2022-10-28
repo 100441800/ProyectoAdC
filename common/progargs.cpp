@@ -1,9 +1,9 @@
-#include "progargs.hpp"
 #include <filesystem>
-#include <iostream>
 #include <stdexcept>
 #include <string>
-#include <vector>
+
+#include "progargs.hpp"
+
 
 namespace fs = std::filesystem;
 

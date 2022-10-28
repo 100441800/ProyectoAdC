@@ -1,11 +1,11 @@
-#include "common/progargs.hpp"
-#include "soa/imagesoa.hpp"
-#include <chrono>
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+#include "common/progargs.hpp"
+#include "soa/imagesoa.hpp"
 
 int main(int argc, const char **argv) {
   const std::vector<std::string> inputs(argv + 1, argv + argc);

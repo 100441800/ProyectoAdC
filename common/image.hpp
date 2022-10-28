@@ -31,6 +31,9 @@ protected:
   int image_size;
   short padding;
 
+  void start_timer();
+  long time_difference();
+
   std::vector<int>
       mask_eigen; // https://www.ipol.im/pub/art/2013/87/?utm_source=doi
   std::vector < std::vector<int>> mask;
@@ -41,8 +44,8 @@ protected:
 
   Image(const std::string &filename);
 
-  uint8_t gamma_delinearization(const uint8_t blue, const uint8_t green,
-                                const uint8_t red);
+  uint8_t gamma_delinearization(const uint8_t blue_p, const uint8_t green_p,
+                                const uint8_t red_p);
 
 public:
   long load_time;

@@ -1,7 +1,6 @@
 #include <chrono>
 #include <cmath>
 #include <fstream>
-#include <iostream> // DEBUG
 #include <stdexcept>
 #include <vector>
 
@@ -84,6 +83,42 @@ void Image::load_header() {
                           this->image_start);
 }
 
+void Image::start_timer(){
+    this->start = std::chrono::high_resolution_clock::now();
+}
+long Image::time_difference(){
+    return std::chrono::duration_cast<std::chrono::microseconds>(
+                        std::chrono::high_resolution_clock::now() - this->start)
+                        .count();
+}
+
+uint8_t Image::gamma_delinearization(const uint8_t blue_p, const uint8_t green_p, const uint8_t red_p) {
+    double red = red_p / 255.0;     // Normalize red
+    double green = green_p / 255.0; // Normalize green
+    double blue = blue_p / 255.0;   // Normalize blue
+    if (red <= 0.04045)
+      red = red / 12.92; // Red
+    else
+      red = std::pow(((red + 0.055) / 1.055), 2.4);
+    if (green <= 0.04045)
+      green = green / 12.92; // Green
+    else
+      green = std::pow(((green + 0.055) / 1.055), 2.4);
+    if (blue <= 0.04045)
+      blue = blue / 12.92; // Blue
+    else
+      blue = std::pow(((blue + 0.055) / 1.055), 2.4);
+    long double linear_luminance = 0.2126 * red + 0.7152 * green +
+                                   0.0722 * blue; // Adjusted luminance of pixel
+    long double gamma_luminance = 0;
+    if (linear_luminance <= 0.0031308)
+      gamma_luminance = 12.92 * linear_luminance;
+    else
+      gamma_luminance = 1.055 * pow(linear_luminance, 1/2.4) -
+                        0.055;                  // 1/2.4 = 0.41666666
+    return gamma_luminance * 255; // Denormalize
+}
+
 Image::Image(const std::string &filename) {
   this->load_time = 0;
   this->operation_time = 0;
@@ -94,7 +129,7 @@ Image::Image(const std::string &filename) {
                 {7, 26, 41, 26, 7},
                 {4, 16, 26, 16, 4},
                 {1, 4, 7, 4, 1}};
-  this->start = std::chrono::high_resolution_clock::now();
+  this->start_timer();
   this->filename = filename;
   this->load_file();
   this->load_header();

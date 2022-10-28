@@ -1,5 +1,4 @@
-#include "aos/imageaos.hpp"
-#include "common/image.hpp"
+
 #include <chrono>
 #include <cmath>
 #include <filesystem>
@@ -7,16 +6,14 @@
 #include <string>
 #include <vector>
 
-#include <iostream>
-
+#include "aos/imageaos.hpp"
+#include "common/image.hpp"
 /**
  * Constructor for ImageAos
  */
 ImageAos::ImageAos(const std::string &filename) : Image::Image(filename) {
   this->load_data();
-  this->load_time = std::chrono::duration_cast<std::chrono::microseconds>(
-                        std::chrono::high_resolution_clock::now() - this->start)
-                        .count();
+  this->load_time = this->time_difference();
 }
 
 /**
@@ -50,7 +47,7 @@ void ImageAos::load_data() {
  * Dumps image data into a new file
  */
 void ImageAos::store(const std::filesystem::path &out_dir) {
-  this->start = std::chrono::high_resolution_clock::now();
+  this->start_timer();
   std::ofstream out_bmp;
   out_bmp.open(out_dir.generic_string() +
                    this->filename.substr(this->filename.find_last_of('/')),
@@ -61,8 +58,7 @@ void ImageAos::store(const std::filesystem::path &out_dir) {
   std::vector<char> buffer; // Buffer for the whole line
   buffer.reserve(this->width * 3 + this->padding);
   for (int i = 0; i < this->height; i++) {
-    int j = 0;
-    for (; j < this->width; j++) {
+    for (int j = 0; j < this->width; j++) {
       buffer[3 * j] = this->data[i * this->width + j].blue;
       buffer[3 * j + 1] = this->data[i * this->width + j].green;
       buffer[3 * j + 2] = this->data[i * this->width + j].red;
@@ -72,10 +68,7 @@ void ImageAos::store(const std::filesystem::path &out_dir) {
       out_bmp.put('\0'); // Adds padding
   }
   out_bmp.close();
-  this->store_time =
-      std::chrono::duration_cast<std::chrono::microseconds>(
-          std::chrono::high_resolution_clock::now() - this->start)
-          .count();
+  this->store_time = this->time_difference();
 }
 
 /**
@@ -89,7 +82,7 @@ void ImageAos::copy(const std::filesystem::path &out_dir) {
  * Generates histogram of each color and saves it into a .hst file
  */
 void ImageAos::histo(const std::filesystem::path &out_dir) {
-  this->start = std::chrono::high_resolution_clock::now();
+  this->start_timer();
   std::ofstream out_bmp;
   std::string filename =
       out_dir.generic_string() +
@@ -106,19 +99,13 @@ void ImageAos::histo(const std::filesystem::path &out_dir) {
     buffer[point.green + 256] += 1;
     buffer[point.blue + 512] += 1;
   }
-  this->operation_time =
-      std::chrono::duration_cast<std::chrono::microseconds>(
-          std::chrono::high_resolution_clock::now() - this->start)
-          .count();
-  this->start = std::chrono::high_resolution_clock::now();
+  this->operation_time = this->time_difference();
+  this->start_timer();
   for (unsigned int i = 0; i < 256 * 3; ++i) {
     std::string num = std::to_string(buffer[i]);
     out_bmp << num << std::endl;
   }
-  this->store_time =
-      std::chrono::duration_cast<std::chrono::microseconds>(
-          std::chrono::high_resolution_clock::now() - this->start)
-          .count();
+  this->store_time = this->time_difference();
 }
 
 /**
@@ -126,40 +113,14 @@ void ImageAos::histo(const std::filesystem::path &out_dir) {
  * grayscale
  */
 void ImageAos::mono(const std::filesystem::path &out_dir) {
-  this->start = std::chrono::high_resolution_clock::now();
+  this->start_timer();
   for (unsigned int i = 0; i < this->data.size(); ++i) {
-    double red = this->data[i].red / 255.0;     // Normalize red
-    double green = this->data[i].green / 255.0; // Normalize green
-    double blue = this->data[i].blue / 255.0;   // Normalize blue
-    if (red <= 0.04045)
-      red = red / 12.92; // Red
-    else
-      red = std::pow(((red + 0.055) / 1.055), 2.4);
-    if (green <= 0.04045)
-      green = green / 12.92; // Green
-    else
-      green = std::pow(((green + 0.055) / 1.055), 2.4);
-    if (blue <= 0.04045)
-      blue = blue / 12.92; // Blue
-    else
-      blue = std::pow(((blue + 0.055) / 1.055), 2.4);
-    long double linear_luminance = 0.2126 * red + 0.7152 * green +
-                                   0.0722 * blue; // Adjusted luminance of pixel
-    long double gamma_luminance = 0;
-    if (linear_luminance <= 0.0031308)
-      gamma_luminance = 12.92 * linear_luminance;
-    else
-      gamma_luminance = 1.055 * pow(linear_luminance, 1/2.4) -
-                        0.055;                  // 1/2.4 = 0.41666666
-    uint8_t grey_pixel = gamma_luminance * 255; // Denormalize
+    uint8_t grey_pixel = this->gamma_delinearization(this->data[i].blue, this->data[i].green, this->data[i].red);
     this->data[i].red = grey_pixel;
     this->data[i].blue = grey_pixel;
     this->data[i].green = grey_pixel;
   }
-  this->operation_time =
-      std::chrono::duration_cast<std::chrono::microseconds>(
-          std::chrono::high_resolution_clock::now() - this->start)
-          .count();
+  this->operation_time = this->time_difference();
   this->store(out_dir);
 }
 
@@ -204,9 +165,9 @@ void ImageAos::gaussian_mask_column(const int i, const int j) {
   this->data[i * this->width + j].red = std::round(sum_red);
 }
 
-void ImageAos::gauss(const std::filesystem::path &out_dir) {
-  this->start = std::chrono::high_resolution_clock::now();
 
+void ImageAos::gauss(const std::filesystem::path &out_dir) {
+  this->start_timer();
   for (int i = 0; i < this->height; i++) {
     for (int j = 0; j < this->width; j++) {
       this->gaussian_mask_row(i, j); // Only the rows
@@ -217,10 +178,6 @@ void ImageAos::gauss(const std::filesystem::path &out_dir) {
       this->gaussian_mask_column(i, j); // Only the columns
     }
   }
-
-  this->operation_time =
-      std::chrono::duration_cast<std::chrono::microseconds>(
-          std::chrono::high_resolution_clock::now() - this->start)
-          .count();
+  this->operation_time = this->time_difference();
   this->store(out_dir);
 }
